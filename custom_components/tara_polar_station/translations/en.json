@@ -34,6 +34,8 @@
       "bearing_from_home": {"name": "Bearing from home"},
       "days_since_departure": {"name": "Days since departure"},
       "solar_elevation": {"name": "Solar elevation"},
+      "local_sunrise": {"name": "Local sunrise"},
+      "local_sunset": {"name": "Local sunset"},
       "mission_phase": {"name": "Mission phase"}
     },
     "binary_sensor": {

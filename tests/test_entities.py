@@ -37,8 +37,8 @@ def _coordinator_with_data() -> Any:
             "stationary": True,
             "is_stale": False,
             "raw_telemetry": {"source": "mock"},
-            "local_sunrise": None,
-            "local_sunset": None,
+            "local_sunrise": datetime(2026, 3, 8, 6, 0, tzinfo=timezone.utc),
+            "local_sunset": datetime(2026, 3, 8, 18, 0, tzinfo=timezone.utc),
         }
     )
 

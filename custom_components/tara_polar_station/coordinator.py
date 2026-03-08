@@ -11,6 +11,7 @@ from aiohttp import ClientError, ClientSession
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
@@ -32,6 +33,8 @@ from .const import (
     EXPEDITION_DEPARTURE_DATE,
     NORTH_POLE_LATITUDE,
     NORTH_POLE_LONGITUDE,
+    STORAGE_KEY,
+    STORAGE_VERSION,
 )
 from .utils import (
     bearing_to_compass,
@@ -42,6 +45,7 @@ from .utils import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+_DATETIME_FIELDS = ("last_report", "local_sunrise", "local_sunset")
 
 
 class TaraApiError(Exception):
@@ -109,6 +113,9 @@ class TaraPolarStationCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     ) -> None:
         self.config_entry = config_entry
         self._client = TaraTelemetryApiClient(session)
+        self._store: Store[dict[str, Any]] = Store(
+            hass, STORAGE_VERSION, f"{STORAGE_KEY}_{config_entry.entry_id}"
+        )
         try:
             self._home_coordinates_override = parse_coordinates(
                 config_entry.options.get(CONF_HOME_COORDINATES_OVERRIDE)
@@ -118,8 +125,11 @@ class TaraPolarStationCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "Invalid home coordinates override in options, using HA home location"
             )
             self._home_coordinates_override = None
-        interval_minutes = int(
+        interval_minutes = max(
+            DEFAULT_POLL_INTERVAL_MINUTES,
+            int(
             config_entry.options.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL_MINUTES)
+            ),
         )
         super().__init__(
             hass,
@@ -127,6 +137,17 @@ class TaraPolarStationCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             name="Tara Polar Station Coordinator",
             update_interval=timedelta(minutes=interval_minutes),
         )
+
+    async def async_initialize(self) -> None:
+        """Restore last known state from storage if available."""
+        cached = await self._store.async_load()
+        if not cached:
+            return
+
+        restored = _deserialize_state(cached)
+        restored[ATTR_IS_STALE] = True
+        self.async_set_updated_data(restored)
+        _LOGGER.debug("Restored cached Tara state from storage")
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch and enrich telemetry."""
@@ -153,6 +174,7 @@ class TaraPolarStationCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         except Exception as err:
             raise UpdateFailed(f"Unexpected telemetry processing error: {err}") from err
 
+        await self._store.async_save(_serialize_state(state))
         self._fire_events(state)
         return state
 
@@ -328,3 +350,40 @@ def _ensure_utc_datetime(value: datetime) -> datetime:
     if value.tzinfo is None:
         return value.replace(tzinfo=timezone.utc)
     return value.astimezone(timezone.utc)
+
+
+def _serialize_state(state: Mapping[str, Any]) -> dict[str, Any]:
+    """Convert state to storage-safe primitives."""
+    def _serialize(value: Any) -> Any:
+        if isinstance(value, datetime):
+            return value.isoformat()
+        if isinstance(value, Mapping):
+            return {str(k): _serialize(v) for k, v in value.items()}
+        if isinstance(value, list | tuple):
+            return [_serialize(item) for item in value]
+        return value
+
+    return {key: _serialize(value) for key, value in state.items()}
+
+
+def _deserialize_state(state: Mapping[str, Any]) -> dict[str, Any]:
+    """Restore datetime fields from persisted state."""
+    restored = dict(state)
+    for field in _DATETIME_FIELDS:
+        raw_value = restored.get(field)
+        if isinstance(raw_value, str):
+            parsed = dt_util.parse_datetime(raw_value)
+            if parsed is not None:
+                restored[field] = _ensure_utc_datetime(parsed)
+
+    raw_telemetry = restored.get(ATTR_RAW_TELEMETRY)
+    if isinstance(raw_telemetry, Mapping):
+        raw_copy = dict(raw_telemetry)
+        timestamp = raw_copy.get("timestamp")
+        if isinstance(timestamp, str):
+            parsed = dt_util.parse_datetime(timestamp)
+            if parsed is not None:
+                raw_copy["timestamp"] = _ensure_utc_datetime(parsed)
+        restored[ATTR_RAW_TELEMETRY] = raw_copy
+
+    return restored

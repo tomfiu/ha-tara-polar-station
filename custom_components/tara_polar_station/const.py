@@ -55,3 +55,6 @@ API_ENDPOINTS: Final[tuple[str, ...]] = (
     "https://taraocean.org/wp-json/tara/v1/polar-station",
     "https://www.taraocean.org/wp-json/tara/v1/polar-station",
 )
+
+STORAGE_VERSION: Final = 1
+STORAGE_KEY: Final = f"{DOMAIN}_last_state"

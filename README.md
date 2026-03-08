@@ -42,7 +42,7 @@ Initial setup uses UI config flow with no required fields.
 
 Options:
 
-- `poll_interval` (minutes, default: 15)
+- `poll_interval` (minutes, min/default: 15)
 - `home_coordinates_override` (`<lat>,<lon>`)
 - `enable_webcam` (default: false)
 
@@ -60,6 +60,8 @@ Options:
 - `sensor.tara_bearing_from_home`
 - `sensor.tara_days_since_departure`
 - `sensor.tara_solar_elevation`
+- `sensor.tara_local_sunrise`
+- `sensor.tara_local_sunset`
 - `sensor.tara_mission_phase`
 
 ### Binary sensors

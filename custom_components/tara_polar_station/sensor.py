@@ -107,6 +107,20 @@ SENSOR_TYPES: tuple[TaraSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
     ),
     TaraSensorEntityDescription(
+        key="local_sunrise",
+        translation_key="local_sunrise",
+        value_fn=lambda data: data.get("local_sunrise"),
+        device_class=SensorDeviceClass.TIMESTAMP,
+        icon="mdi:weather-sunset-up",
+    ),
+    TaraSensorEntityDescription(
+        key="local_sunset",
+        translation_key="local_sunset",
+        value_fn=lambda data: data.get("local_sunset"),
+        device_class=SensorDeviceClass.TIMESTAMP,
+        icon="mdi:weather-sunset-down",
+    ),
+    TaraSensorEntityDescription(
         key="mission_phase",
         translation_key="mission_phase",
         value_fn=lambda data: data.get("mission_phase"),

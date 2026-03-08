@@ -36,6 +36,7 @@ async def async_setup_entry(
 
     session = async_get_clientsession(hass)
     coordinator = TaraPolarStationCoordinator(hass, entry, session)
+    await coordinator.async_initialize()
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     entry.async_on_unload(entry.add_update_listener(_async_reload_entry))

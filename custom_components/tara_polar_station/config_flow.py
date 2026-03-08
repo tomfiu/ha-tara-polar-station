@@ -81,7 +81,7 @@ class TaraPolarStationOptionsFlow(config_entries.OptionsFlow):
             {
                 vol.Optional(
                     CONF_POLL_INTERVAL, default=defaults[CONF_POLL_INTERVAL]
-                ): vol.All(vol.Coerce(int), vol.Range(min=5, max=180)),
+                ): vol.All(vol.Coerce(int), vol.Range(min=15, max=180)),
                 vol.Optional(
                     CONF_HOME_COORDINATES_OVERRIDE,
                     default=defaults[CONF_HOME_COORDINATES_OVERRIDE],
