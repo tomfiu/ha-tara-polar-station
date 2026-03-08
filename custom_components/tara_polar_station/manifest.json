@@ -1,0 +1,13 @@
+{
+  "domain": "tara_polar_station",
+  "name": "Tara Polar Station Tracker",
+  "codeowners": ["@tomasfiurasek"],
+  "config_flow": true,
+  "documentation": "https://github.com/tomasfiurasek/ha-tara-polar-station",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/tomasfiurasek/ha-tara-polar-station/issues",
+  "loggers": ["custom_components.tara_polar_station"],
+  "requirements": [],
+  "version": "0.1.0"
+}

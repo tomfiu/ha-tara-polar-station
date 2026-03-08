@@ -1,0 +1,46 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Tara Polar Station Tracker",
+        "description": "Set up Tara Polar Station tracking."
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Tara Polar Station options",
+        "data": {
+          "poll_interval": "Polling interval (minutes)",
+          "home_coordinates_override": "Home coordinates override (<lat>,<lon>)",
+          "enable_webcam": "Enable webcam camera"
+        }
+      }
+    },
+    "error": {
+      "invalid_coordinates": "Coordinates must be in format <lat>,<lon>"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "latitude": {"name": "Latitude"},
+      "longitude": {"name": "Longitude"},
+      "speed": {"name": "Speed"},
+      "course": {"name": "Course"},
+      "last_report": {"name": "Last report"},
+      "distance_from_home": {"name": "Distance from home"},
+      "distance_to_north_pole": {"name": "Distance to North Pole"},
+      "bearing_from_home": {"name": "Bearing from home"},
+      "days_since_departure": {"name": "Days since departure"},
+      "solar_elevation": {"name": "Solar elevation"},
+      "mission_phase": {"name": "Mission phase"}
+    },
+    "binary_sensor": {
+      "in_arctic_circle": {"name": "In Arctic Circle"},
+      "in_polar_day": {"name": "In polar day"},
+      "in_polar_night": {"name": "In polar night"},
+      "stationary": {"name": "Stationary"}
+    }
+  }
+}
