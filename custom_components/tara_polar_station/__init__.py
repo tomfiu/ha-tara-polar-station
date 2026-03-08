@@ -36,12 +36,6 @@ async def async_setup_entry(
 
     session = async_get_clientsession(hass)
     coordinator = TaraPolarStationCoordinator(hass, entry, session)
-    await coordinator.async_refresh()
-    if not coordinator.last_update_success:
-        _LOGGER.warning(
-            "Initial Tara telemetry refresh failed, entities will start unavailable and retry: %s",
-            coordinator.last_exception,
-        )
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     entry.async_on_unload(entry.add_update_listener(_async_reload_entry))
@@ -51,6 +45,8 @@ async def async_setup_entry(
         platforms.append(Platform.CAMERA)
 
     await hass.config_entries.async_forward_entry_setups(entry, platforms)
+    hass.async_create_task(coordinator.async_refresh())
+    _LOGGER.debug("Scheduled initial Tara telemetry refresh in background")
     return True
 
 

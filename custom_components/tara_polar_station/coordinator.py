@@ -109,9 +109,15 @@ class TaraPolarStationCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     ) -> None:
         self.config_entry = config_entry
         self._client = TaraTelemetryApiClient(session)
-        self._home_coordinates_override = parse_coordinates(
-            config_entry.options.get(CONF_HOME_COORDINATES_OVERRIDE)
-        )
+        try:
+            self._home_coordinates_override = parse_coordinates(
+                config_entry.options.get(CONF_HOME_COORDINATES_OVERRIDE)
+            )
+        except ValueError:
+            _LOGGER.warning(
+                "Invalid home coordinates override in options, using HA home location"
+            )
+            self._home_coordinates_override = None
         interval_minutes = int(
             config_entry.options.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL_MINUTES)
         )
