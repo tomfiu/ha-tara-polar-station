@@ -124,7 +124,16 @@ class TaraPolarStationCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch and enrich telemetry."""
-        raw = await self._client.async_fetch_telemetry()
+        try:
+            raw = await self._client.async_fetch_telemetry()
+        except TaraApiError as err:
+            if self.data:
+                _LOGGER.warning(
+                    "Telemetry fetch failed, keeping last known state marked stale: %s", err
+                )
+                return {**self.data, ATTR_IS_STALE: True}
+            raise UpdateFailed(str(err)) from err
+
         _LOGGER.debug("Received telemetry: %s", raw)
 
         try:

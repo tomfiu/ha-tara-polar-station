@@ -52,5 +52,6 @@ WEB_CAM_DEFAULT_STILL_IMAGE_URL: Final = (
 API_TIMEOUT_SECONDS: Final = 20
 API_ENDPOINTS: Final[tuple[str, ...]] = (
     "https://api.taraocean.org/polar-station/telemetry",
+    "https://taraocean.org/wp-json/tara/v1/polar-station",
     "https://www.taraocean.org/wp-json/tara/v1/polar-station",
 )

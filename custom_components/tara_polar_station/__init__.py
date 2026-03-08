@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -13,6 +14,8 @@ if TYPE_CHECKING:
     TaraPolarStationConfigEntry = ConfigEntry[TaraPolarStationCoordinator]
 else:
     TaraPolarStationConfigEntry = Any
+
+_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
@@ -33,7 +36,12 @@ async def async_setup_entry(
 
     session = async_get_clientsession(hass)
     coordinator = TaraPolarStationCoordinator(hass, entry, session)
-    await coordinator.async_config_entry_first_refresh()
+    await coordinator.async_refresh()
+    if not coordinator.last_update_success:
+        _LOGGER.warning(
+            "Initial Tara telemetry refresh failed, entities will start unavailable and retry: %s",
+            coordinator.last_exception,
+        )
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     entry.async_on_unload(entry.add_update_listener(_async_reload_entry))
