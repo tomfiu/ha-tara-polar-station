@@ -14,7 +14,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfAngle, UnitOfLength, UnitOfSpeed
+from homeassistant.const import UnitOfLength, UnitOfSpeed
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
@@ -25,6 +25,15 @@ from .const import DOMAIN, NAME
 from .coordinator import TaraPolarStationCoordinator
 
 ValueFn = Callable[[dict[str, Any]], Any]
+
+try:
+    from homeassistant.const import UnitOfAngle
+
+    ANGLE_DEGREES = UnitOfAngle.DEGREES
+except ImportError:
+    from homeassistant.const import DEGREE
+
+    ANGLE_DEGREES = DEGREE
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -59,7 +68,7 @@ SENSOR_TYPES: tuple[TaraSensorEntityDescription, ...] = (
         key="course",
         translation_key="course",
         value_fn=lambda data: data.get("course"),
-        native_unit_of_measurement=UnitOfAngle.DEGREES,
+        native_unit_of_measurement=ANGLE_DEGREES,
         icon="mdi:compass-rose",
     ),
     TaraSensorEntityDescription(
@@ -102,7 +111,7 @@ SENSOR_TYPES: tuple[TaraSensorEntityDescription, ...] = (
         key="solar_elevation",
         translation_key="solar_elevation",
         value_fn=lambda data: data.get("solar_elevation"),
-        native_unit_of_measurement=UnitOfAngle.DEGREES,
+        native_unit_of_measurement=ANGLE_DEGREES,
         icon="mdi:weather-sunny",
         state_class=SensorStateClass.MEASUREMENT,
     ),
